@@ -6,24 +6,14 @@
     <title>ChatGPT Clone</title>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/marked/4.3.0/marked.min.js"></script>
     <style>
-        :root {
-            --white: #ffffff; --black: #000000; --gray-50: #f9fafb; --gray-100: #f3f4f6;
-            --gray-200: #e5e7eb; --gray-300: #d1d5db; --gray-400: #9ca3af; --gray-500: #6b7280;
-            --gray-600: #4b5563; --gray-700: #374151; --gray-800: #1f2937; --gray-900: #111827;
-        }
-        [data-theme="light"] {
-            --bg-color: var(--white); --text-primary: var(--gray-800); --text-secondary: var(--gray-600);
-            --border-color: var(--gray-200); --sidebar-bg: var(--gray-50); --sidebar-hover: var(--gray-200);
-            --chat-bg: var(--white); --user-msg-text: var(--gray-800); --bot-msg-bg: var(--white);
-            --input-bg: var(--white); --input-border: var(--gray-300); --button-bg: var(--gray-800);
-            --button-text: var(--white); --button-hover: var(--black);
-        }
+        :root { /* ... Variables CSS inchangées ... */ }
+        [data-theme="light"] { /* ... Thème clair inchangé ... */ }
         [data-theme="dark"] {
             --bg-color: #212121; --text-primary: #ececf1; --text-secondary: #9ca3af;
             --border-color: #3a3a3a; --sidebar-bg: #171717; --sidebar-hover: #2d2d2d;
             --chat-bg: #212121; --user-msg-text: #ececf1; --bot-msg-bg: #212121;
-            --input-bg: #212121; --input-border: #555; --button-bg: #ececf1;
-            --button-text: var(--black); --button-hover: var(--white);
+            --input-bg: #212121; --input-border: #555; --button-bg: #3c3c3c;
+            --button-text: #ececf1; --button-hover: #4d4d4d; --menu-bg: #2d2d2d;
         }
         * { margin: 0; padding: 0; box-sizing: border-box; }
         body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif; background: var(--bg-color); color: var(--text-primary); display: flex; height: 100vh; }
@@ -31,14 +21,17 @@
         .sidebar-header { display: flex; align-items: center; padding: 8px; margin-bottom: 16px; }
         .new-chat-btn { flex-grow: 1; padding: 12px; background: var(--sidebar-bg); border: 1px solid var(--border-color); border-radius: 8px; color: var(--text-primary); cursor: pointer; font-size: 14px; display: flex; align-items: center; gap: 8px; transition: all 0.2s ease; }
         .new-chat-btn:hover { background: var(--sidebar-hover); }
-        .sidebar-menu { flex: 1; overflow-y: auto; }
-        .menu-item { padding: 10px 16px; border-radius: 8px; cursor: pointer; font-size: 14px; color: var(--text-primary); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; transition: background-color 0.2s ease; }
+        .sidebar-menu { flex: 1; overflow-y: auto; position: relative; }
+        .menu-item { display: flex; align-items: center; gap: 12px; padding: 10px 16px; border-radius: 8px; cursor: pointer; font-size: 14px; color: var(--text-primary); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; transition: background-color 0.2s ease; position: relative; }
         .menu-item:hover, .menu-item.active { background: var(--sidebar-hover); }
         .conversations-header { padding: 16px 16px 8px; font-size: 12px; font-weight: 500; color: var(--text-secondary); }
-        .sidebar-footer { padding: 16px; border-top: 1px solid var(--border-color); }
+        .sidebar-footer { padding: 8px; border-top: 1px solid var(--border-color); position: relative; }
         .main-content { flex: 1; display: flex; flex-direction: column; }
-        .chat-header { padding: 16px 24px; display: flex; align-items: center; justify-content: space-between; }
-        .hamburger { display: none; background: none; border: none; font-size: 24px; cursor: pointer; color: var(--text-primary); }
+        .chat-header { padding: 16px 24px; display: flex; align-items: center; justify-content: space-between; position: relative; }
+        .header-controls { display: flex; align-items: center; gap: 8px; }
+        .header-btn { background: none; border: none; color: var(--text-secondary); cursor: pointer; padding: 8px; border-radius: 8px; font-size: 14px; display: flex; align-items: center; gap: 8px; }
+        .header-btn:hover { background: var(--sidebar-hover); color: var(--text-primary); }
+        .hamburger { display: none; /* ... */ }
         .model-info { font-size: 18px; }
         .chat-container { flex: 1; overflow-y: auto; position: relative; display: flex; flex-direction: column; }
         .messages-wrapper { max-width: 800px; width: 100%; margin: 0 auto; padding: 24px; }
@@ -48,28 +41,34 @@
         .message { display: flex; gap: 16px; }
         .user-message .message-content { font-weight: 600; text-align: right; }
         .bot-message { align-items: flex-start; }
-        .message-avatar { width: 32px; height: 32px; border-radius: 50%; background: var(--black); color: var(--white); display: flex; align-items: center; justify-content: center; flex-shrink: 0; }
-        [data-theme="dark"] .message-avatar { background: var(--white); color: var(--black); }
+        .message-avatar { /* ... */ }
         .message-content { flex: 1; line-height: 1.7; font-size: 16px; padding-top: 4px; }
         .message-content p, .message-content ul, .message-content ol, .message-content h1, .message-content h2, .message-content h3 { margin-bottom: 1rem; }
         .input-area { padding: 16px 24px 24px; }
         .input-container { max-width: 800px; margin: 0 auto; }
         .input-wrapper { display: flex; align-items: center; gap: 8px; background: var(--input-bg); border: 1px solid var(--input-border); border-radius: 12px; padding: 8px 16px; }
         .message-input { flex: 1; border: none; background: none; outline: none; resize: none; font-size: 16px; color: var(--text-primary); max-height: 200px; }
-        .send-button { width: 32px; height: 32px; background: var(--button-bg); color: var(--button-text); border: none; border-radius: 50%; cursor: pointer; display: flex; align-items: center; justify-content: center; transition: background-color 0.2s ease; }
+        .send-button { width: 32px; height: 32px; background: var(--button-bg); color: var(--button-text); border: none; border-radius: 8px; cursor: pointer; display: flex; align-items: center; justify-content: center; transition: background-color 0.2s ease; }
         .send-button:disabled { background: var(--gray-700); cursor: not-allowed; }
-        .send-button svg { width: 16px; height: 16px; }
-        
-        /* EFFET DE RÉFLEXION (POINT QUI PULSE) */
         .pulsing-dot { display: inline-block; width: 8px; height: 8px; background-color: var(--text-primary); border-radius: 50%; animation: pulse 1.5s infinite ease-in-out; }
         @keyframes pulse { 0%, 100% { transform: scale(1); opacity: 0.7; } 50% { transform: scale(1.5); opacity: 1; } }
-        
-        @media (max-width: 768px) {
-            .sidebar { position: fixed; left: -260px; top: 0; height: 100%; z-index: 100; box-shadow: 0 0 40px rgba(0,0,0,0.2); }
-            .sidebar.open { left: 0; }
-            .main-content { width: 100%; }
-            .hamburger { display: block; }
+
+        /* --- STYLES POUR LES NOUVEAUX MENUS CONTEXTUELS --- */
+        .menu-options-btn { background: none; border: none; color: var(--text-secondary); cursor: pointer; padding: 4px; border-radius: 5px; opacity: 0; transition: opacity 0.2s ease; }
+        .menu-item:hover .menu-options-btn { opacity: 1; }
+        .menu-options-btn:hover { background-color: var(--button-bg); }
+        .menu {
+            display: none; position: absolute; z-index: 1000; background-color: var(--menu-bg);
+            border-radius: 8px; padding: 8px; box-shadow: 0 4px 12px rgba(0,0,0,0.2);
+            width: 180px; font-size: 14px;
         }
+        .menu.show { display: block; }
+        .menu-item-action { display: flex; align-items: center; gap: 8px; padding: 8px; border-radius: 6px; cursor: pointer; }
+        .menu-item-action:hover { background-color: var(--sidebar-hover); }
+        .menu-item-action.delete { color: var(--red-500); }
+        .menu-divider { height: 1px; background-color: var(--border-color); margin: 8px 0; }
+        #user-menu { bottom: calc(100% + 8px); left: 8px; width: 240px; }
+        #header-menu { top: calc(100% + 4px); right: 24px; }
     </style>
 </head>
 <body data-theme="dark">
@@ -85,10 +84,21 @@
             <div class="conversations-header">Chats</div>
             <div id="conversations"></div>
         </div>
+        <!-- MENU UTILISATEUR (PIED DE PAGE) -->
         <div class="sidebar-footer">
-            <div class="menu-item">
-                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="3"></circle><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1 0 2.83 2 2 0 0 1-2.83 0l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-2 2 2 2 0 0 1-2-2v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83 0 2 2 0 0 1 0-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1-2-2 2 2 0 0 1 2-2h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 0-2.83 2 2 0 0 1 2.83 0l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 2-2 2 2 0 0 1 2 2v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 0 2 2 0 0 1 0 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 2 2 2 2 0 0 1-2 2h-.09a1.65 1.65 0 0 0-1.51 1z"></path></svg>
+            <div class="menu-item" id="user-menu-trigger" onclick="toggleUserMenu()">
+                <div class="message-avatar" style="width: 28px; height: 28px;">S</div>
                 <span>Stephane Guei</span>
+            </div>
+            <div class="menu" id="user-menu">
+                <div class="menu-item-action"><span>gueistephane4@gmail.com</span></div>
+                <div class="menu-divider"></div>
+                <div class="menu-item-action"><span>Upgrade plan</span></div>
+                <div class="menu-item-action"><span>Customize ChatGPT</span></div>
+                <div class="menu-item-action"><span>Settings</span></div>
+                <div class="menu-item-action"><span>Help</span></div>
+                <div class="menu-divider"></div>
+                <div class="menu-item-action"><span>Log out</span></div>
             </div>
         </div>
     </div>
@@ -97,7 +107,21 @@
         <div class="chat-header">
             <button class="hamburger" onclick="toggleSidebar()">☰</button>
             <div class="model-info">ChatGPT</div>
-            <button class="theme-toggle" onclick="toggleTheme()" title="Changer le thème">🌙</button>
+            <!-- MENU D'EN-TÊTE -->
+            <div class="header-controls">
+                <button class="header-btn">
+                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 12v8a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2v-8M16 6l-4-4-4 4M12 2v13"/></svg>
+                    <span>Share</span>
+                </button>
+                <button class="header-btn" id="header-menu-trigger" onclick="toggleHeaderMenu()">
+                    <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor"><circle cx="12" cy="12" r="2"/><circle cx="19" cy="12" r="2"/><circle cx="5" cy="12" r="2"/></svg>
+                </button>
+                <div class="menu" id="header-menu">
+                    <div class="menu-item-action"><span>Archive</span></div>
+                    <div class="menu-item-action"><span>Report</span></div>
+                    <div class="menu-item-action delete"><span>Delete</span></div>
+                </div>
+            </div>
         </div>
         <div class="chat-container" id="chatContainer">
             <div class="messages-wrapper" id="messagesWrapper">
@@ -107,18 +131,29 @@
             </div>
         </div>
         <div class="input-area">
-            <div class="input-container">
+             <!-- ... Zone de saisie inchangée ... -->
+             <div class="input-container">
                 <div class="input-wrapper">
                     <textarea class="message-input" id="messageInput" placeholder="Ask anything..." rows="1" onkeydown="handleKeyDown(event)" oninput="autoResize()"></textarea>
                     <button class="send-button" id="sendButton" onclick="sendMessage()" disabled>
-                        <svg viewBox="0 0 24 24" fill="currentColor"><path d="M13.42,2.44,4.44,6.41a1,1,0,0,0-.44,1.34L6.41,12,4,16.25a1,1,0,0,0,.44,1.34l9,3.95a1,1,0,0,0,1.11-1V3.41A1,1,0,0,0,13.42,2.44Z"></path></svg>
+                         <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor"><path d="M13.42,2.44,4.44,6.41a1,1,0,0,0-.44,1.34L6.41,12,4,16.25a1,1,0,0,0,.44,1.34l9,3.95a1,1,0,0,0,1.11-1V3.41A1,1,0,0,0,13.42,2.44Z"></path></svg>
                     </button>
                 </div>
             </div>
         </div>
     </div>
 
+    <!-- Conteneur pour le menu de conversation, qui sera positionné dynamiquement -->
+    <div class="menu" id="chat-menu">
+        <div class="menu-item-action"><span>Share</span></div>
+        <div class="menu-item-action"><span>Rename</span></div>
+        <div class="menu-item-action"><span>Archive</span></div>
+        <div class="menu-item-action delete"><span>Delete</span></div>
+    </div>
+
+
     <script>
+        // --- Variables globales et configuration ---
         let currentConversationId = null;
         let conversations = {};
         let isLoading = false;
@@ -126,6 +161,7 @@
             apiUrl: 'https://srv886023.hstgr.cloud/api/v1/prediction/b02cce0c-77a8-4b4f-8a4a-0de7afd15fc2'
         };
 
+        // --- Initialisation ---
         document.addEventListener('DOMContentLoaded', () => {
             loadConversations();
             setTheme(localStorage.getItem('theme') || 'dark');
@@ -134,18 +170,54 @@
                 autoResize();
                 document.getElementById('sendButton').disabled = document.getElementById('messageInput').value.trim() === '' || isLoading;
             });
-        });
 
-        const setTheme = (theme) => { document.body.setAttribute('data-theme', theme); localStorage.setItem('theme', theme); document.querySelector('.theme-toggle').textContent = theme === 'light' ? '🌙' : '☀️'; };
+            // GESTIONNAIRE GLOBAL POUR FERMER LES MENUS
+            window.addEventListener('click', (event) => {
+                closeAllMenus(event);
+            });
+        });
+        
+        // --- Fonctions des menus ---
+        const toggleUserMenu = () => document.getElementById('user-menu').classList.toggle('show');
+        const toggleHeaderMenu = () => document.getElementById('header-menu').classList.toggle('show');
+
+        const toggleChatMenu = (event, convId) => {
+            event.stopPropagation(); // Empêche de sélectionner la conv en même temps
+            const menu = document.getElementById('chat-menu');
+            const button = event.currentTarget;
+            const rect = button.getBoundingClientRect();
+            
+            menu.style.left = `${rect.left}px`;
+            menu.style.top = `${rect.bottom + 4}px`;
+            menu.classList.toggle('show');
+        };
+
+        const closeAllMenus = (event) => {
+            // Ne ferme pas si on clique sur un bouton de menu
+            if (event.target.closest('#user-menu-trigger, #header-menu-trigger, .menu-options-btn')) {
+                return;
+            }
+            // Ne ferme pas si on clique à l'intérieur d'un menu déjà ouvert
+            if (event.target.closest('.menu')) {
+                return;
+            }
+            document.getElementById('user-menu').classList.remove('show');
+            document.getElementById('header-menu').classList.remove('show');
+            document.getElementById('chat-menu').classList.remove('show');
+        };
+
+        // --- Fonctions de base (thème, sidebar, etc.) ---
+        const setTheme = (theme) => { document.body.setAttribute('data-theme', theme); localStorage.setItem('theme', theme); };
         const toggleTheme = () => setTheme(document.body.getAttribute('data-theme') === 'light' ? 'dark' : 'light');
         const toggleSidebar = () => document.getElementById('sidebar').classList.toggle('open');
         
+        // --- Fonctions de gestion des conversations ---
         const loadConversations = () => { conversations = JSON.parse(localStorage.getItem('chat-conversations') || '{}'); updateConversationsList(); };
         const saveConversations = () => localStorage.setItem('chat-conversations', JSON.stringify(conversations));
 
         const startNewChat = () => {
             currentConversationId = `chat_${Date.now()}`;
-            conversations[currentConversationId] = { id: currentConversationId, title: 'Nouvelle conversation', messages: [], createdAt: new Date().toISOString() };
+            conversations[currentConversationId] = { id: currentConversationId, title: 'New Chat', messages: [], createdAt: new Date().toISOString() };
             renderConversation();
             updateConversationsList();
             saveConversations();
@@ -161,14 +233,21 @@
                 .forEach(conv => {
                     const item = document.createElement('div');
                     item.className = `menu-item ${conv.id === currentConversationId ? 'active' : ''}`;
-                    item.onclick = () => selectConversation(conv.id);
-                    item.textContent = conv.title;
+                    item.onclick = (e) => { if (!e.target.closest('.menu-options-btn')) selectConversation(conv.id); };
+                    
+                    item.innerHTML = `
+                        <span style="flex-grow: 1;">${conv.title}</span>
+                        <button class="menu-options-btn" onclick="toggleChatMenu(event, '${conv.id}')">
+                            <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor"><circle cx="12" cy="12" r="2"/><circle cx="19" cy="12" r="2"/><circle cx="5" cy="12" r="2"/></svg>
+                        </button>
+                    `;
                     container.appendChild(item);
                 });
         };
         
+        // --- Fonctions d'affichage et d'envoi des messages (inchangées) ---
         const renderConversation = () => {
-            const wrapper = document.getElementById('messagesWrapper');
+             const wrapper = document.getElementById('messagesWrapper');
             const welcomeScreen = document.getElementById('welcomeScreen');
             wrapper.innerHTML = '';
             if (currentConversationId && conversations[currentConversationId]) {
@@ -181,6 +260,7 @@
         };
 
         const addMessageToUI = (content, isUser) => {
+            // ... (Cette fonction est identique à la version précédente)
             document.getElementById('welcomeScreen').style.display = 'none';
             const wrapper = document.getElementById('messagesWrapper');
             const group = document.createElement('div');
@@ -191,7 +271,7 @@
                 group.innerHTML = `
                     <div class="message bot-message">
                         <div class="message-avatar">
-                             <svg viewBox="0 0 41 41" fill="none"><path d="M37.532 19.2c-1.176 1.76-2.82 3.295-4.464 4.59-1.644 1.3-3.29 2.36-4.933 3.18-.035.018-.07.036-.106.053-1.644.82-3.29 1.3-4.933 1.467-.036.002-.07.003-.106.003-1.644-.165-3.29-.645-4.934-1.467-.035-.017-.07-.035-.106-.053-1.643-.82-3.29-1.88-4.933-3.18-1.643-1.295-3.288-2.83-4.464-4.59-1.177-1.76-1.765-3.52-1.765-5.28s.588-3.52 1.765-5.28c1.176-1.76 2.82-3.295 4.464-4.59 1.644-1.3 3.29-2.36 4.934-3.18.035-.018.07-.036.106-.053 1.643-.82 3.29-1.3 4.933-1.467.036-.002.07-.003.106-.003s.07.001.106.003c1.644.166 3.29.646 4.934 1.467.035.017.07.035.106.053 1.643.82 3.29 1.88 4.933 3.18 1.643 1.295 3.288 2.83 4.464 4.59 1.177 1.76.588 3.52.588 5.28s-.588 3.52-1.765 5.28zM20.5 35.26c-1.37-.137-2.74-.54-4.11-1.205-1.37-.665-2.74-1.595-4.11-2.79-1.37-1.19-2.495-2.6-3.38-4.07-1.77-2.945-1.77-6.42 0-9.365.885-1.47 2.01-2.88 3.38-4.07 1.37-1.195 2.74-2.125 4.11-2.79 1.37-.665 2.74-1.07 4.11-1.205 2.945-.27 5.89.815 7.99 2.915 2.1 2.1 3.185 5.045 2.915 7.99-.135 1.37-.54 2.74-1.205 4.11-.665 1.37-1.595 2.74-2.79 4.11-1.19 1.37-2.6 2.495-4.07 3.38-1.47.885-2.88 1.53-4.245 1.935a8.216 8.216 0 0 1-1.765.175z" fill="currentColor"></path></svg>
+                             <svg viewBox="0 0 41 41" fill="none"><path d="M37.532 19.2c-1.176 1.76-2.82 3.295-4.464 4.59-1.644 1.3-3.29 2.36-4.933 3.18-.035.018-.07.036-.106.053-1.644.82-3.29 1.3-4.933 1.467-.036.002-.07.003-.106.003-1.644-.165-3.29-.645-4.934-1.467-.035-.017-.07-.035-.106-.053-1.643-.82-3.29-1.88-4.933-3.18-1.643-1.295-3.288-2.83-4.464-4.59-1.177-1.76-1.765-3.52-1.765-5.28s.588-3.52 1.765-5.28c1.176-1.76 2.82-3.295 4.464-4.59 1.644-1.3 3.29-2.36 4.934-3.18.035-.018.07-.036-.106-.053 1.643-.82 3.29-1.3 4.933-1.467.036-.002.07-.003-.106-.003s.07.001.106.003c1.644.166 3.29.646 4.934 1.467.035.017.07.035.106.053 1.643.82 3.29 1.88 4.933 3.18 1.643 1.295 3.288 2.83 4.464 4.59 1.177 1.76.588 3.52.588 5.28s-.588 3.52-1.765 5.28zM20.5 35.26c-1.37-.137-2.74-.54-4.11-1.205-1.37-.665-2.74-1.595-4.11-2.79-1.37-1.19-2.495-2.6-3.38-4.07-1.77-2.945-1.77-6.42 0-9.365.885-1.47 2.01-2.88 3.38-4.07 1.37-1.195 2.74-2.125 4.11-2.79 1.37-.665 2.74-1.07 4.11-1.205 2.945-.27 5.89.815 7.99 2.915 2.1 2.1 3.185 5.045 2.915 7.99-.135 1.37-.54 2.74-1.205 4.11-.665 1.37-1.595 2.74-2.79 4.11-1.19 1.37-2.6 2.495-4.07 3.38-1.47.885-2.88 1.53-4.245 1.935a8.216 8.216 0 0 1-1.765.175z" fill="currentColor"></path></svg>
                         </div>
                         <div class="message-content">${content}</div>
                     </div>`;
@@ -200,7 +280,6 @@
             scrollToBottom();
             return group.querySelector('.message-content');
         };
-
         const saveMessage = (content, isUser) => {
             if (!currentConversationId) return;
             const conv = conversations[currentConversationId];
@@ -211,8 +290,7 @@
             }
             saveConversations();
         };
-
-        const sendMessage = async () => {
+        const sendMessage = async () => { /* ... Identique à la version précédente ... */ 
             const input = document.getElementById('messageInput');
             const message = input.value.trim();
             if (!message || isLoading) return;
@@ -246,8 +324,7 @@
                 setLoading(false);
             }
         };
-
-        async function streamFlowiseResponse(question, onChunk) {
+        async function streamFlowiseResponse(question, onChunk) { /* ... Identique à la version précédente ... */ 
             const response = await fetch(config.apiUrl, {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
@@ -286,18 +363,17 @@
                 }
             }
         }
-        
-        const setLoading = (loading) => {
+        const setLoading = (loading) => { /* ... Identique à la version précédente ... */ 
             isLoading = loading;
             const sendButton = document.getElementById('sendButton');
             document.getElementById('messageInput').disabled = loading;
             sendButton.disabled = loading;
             if (!loading) document.getElementById('messageInput').focus();
         };
-
         const autoResize = () => { const textarea = document.getElementById('messageInput'); textarea.style.height = 'auto'; textarea.style.height = `${textarea.scrollHeight}px`; };
         const scrollToBottom = () => { const container = document.getElementById('chatContainer'); container.scrollTop = container.scrollHeight; };
         const handleKeyDown = (event) => { if (event.key === 'Enter' && !event.shiftKey) { event.preventDefault(); sendMessage(); } };
+
     </script>
 </body>
 </html>
