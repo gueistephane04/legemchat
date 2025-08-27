@@ -6,7 +6,6 @@
     <title>ChatGPT Clone</title>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/marked/4.3.0/marked.min.js"></script>
     <style>
-        /* ... TOUT LE CSS EST ICI ... */
         * { margin: 0; padding: 0; box-sizing: border-box; }
         :root {
             --white: #ffffff; --black: #000000; --gray-50: #f9fafb; --gray-100: #f3f4f6; --gray-200: #e5e7eb;
@@ -81,7 +80,6 @@
         [data-theme="dark"] .send-button:disabled { background: var(--gray-600); }
         .loading{display:inline-block;width:20px;height:20px;border:2px solid var(--border-color);border-radius:50%;border-top-color:var(--button-bg);animation:spin 1s ease-in-out infinite}@keyframes spin{to{transform:rotate(360deg)}}
         
-        /* Nouveau CSS pour l'effet typewriter */
         .typing-cursor {
             display: inline-block;
             width: 2px;
@@ -101,7 +99,13 @@
             position: relative;
         }
         
-        @media (max-width: 768px) { .sidebar { position: fixed; left: -260px; top: 0; height: 100%; z-index: 100; transition: left 0.3s ease; } .sidebar.open { left: 0; box-shadow: 0 0 40px rgba(0,0,0,0.2); } .main-content { width: 100%; } .hamburger { display: block; } .messages-wrapper, .input-area { padding: 16px; } }
+        @media (max-width: 768px) { 
+            .sidebar { position: fixed; left: -260px; top: 0; height: 100%; z-index: 100; transition: left 0.3s ease; } 
+            .sidebar.open { left: 0; box-shadow: 0 0 40px rgba(0,0,0,0.2); } 
+            .main-content { width: 100%; } 
+            .hamburger { display: block; } 
+            .messages-wrapper, .input-area { padding: 16px; } 
+        }
     </style>
 </head>
 <body data-theme="dark">
@@ -119,7 +123,7 @@
         </div>
         <div class="sidebar-footer">
             <div class="menu-item">
-                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="3"></circle><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1 0 2.83 2 2 0 0 1-2.83 0l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-2 2 2 2 0 0 1-2-2v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83 0 2 2 0 0 1 0-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1-2-2 2 2 0 0 1 2-2h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 0-2.83 2 2 0 0 1 2.83 0l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 2-2 2 2 0 0 1 2 2v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 0 2 2 0 0 1 0 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 2 2 2 2 0 0 1-2 2h-.09a1.65 1.65 0 0 0-1.51 1z"></path></svg>
+                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="3"></circle><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1 0 2.83 2 2 0 0 1-2.83 0l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-2 2 2 2 0 0 1-2-2v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83 0 2 2 0 0 1 0-2.83l.06.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1-2-2 2 2 0 0 1 2-2h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 0-2.83 2 2 0 0 1 2.83 0l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 2-2 2 2 0 0 1 2 2v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 0 2 2 0 0 1 0 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 2 2 2 2 0 0 1-2 2h-.09a1.65 1.65 0 0 0-1.51 1z"></path></svg>
                 <span>Stephane Guei</span>
             </div>
         </div>
@@ -161,39 +165,71 @@
         let currentStreamingController = null;
         
         const config = {
-            // Remplacez par votre URL FlowiseAI
-            apiUrl: 'https://srv886023.hstgr.cloud/api/v1/prediction/b02cce0c-77a8-4b4f-8a4a-0de7afd15fc2',
-            // Pour le streaming, ajoutez le paramètre stream
-            streamingUrl: 'https://srv886023.hstgr.cloud/api/v1/prediction/b02cce0c-77a8-4b4f-8a4a-0de7afd15fc2?streaming=true'
+            apiUrl: 'https://srv886023.hstgr.cloud/api/v1/prediction/b02cce0c-77a8-4b4f-8a4a-0de7afd15fc2'
         };
 
-        document.addEventListener('DOMContentLoaded', () => {
+        // Initialisation
+        document.addEventListener('DOMContentLoaded', function() {
             loadConversations();
             const savedTheme = localStorage.getItem('theme') || 'dark';
             setTheme(savedTheme);
             renderConversation();
-            document.getElementById('messageInput').addEventListener('input', () => {
+            
+            const messageInput = document.getElementById('messageInput');
+            messageInput.addEventListener('input', function() {
                 autoResize();
-                document.getElementById('sendButton').disabled = document.getElementById('messageInput').value.trim() === '' || isLoading;
+                const sendButton = document.getElementById('sendButton');
+                sendButton.disabled = messageInput.value.trim() === '' || isLoading;
             });
         });
 
-        function setTheme(theme) { document.body.setAttribute('data-theme', theme); localStorage.setItem('theme', theme); document.querySelector('.theme-toggle').textContent = theme === 'light' ? '🌙' : '☀️'; }
-        function toggleTheme() { setTheme(document.body.getAttribute('data-theme') === 'light' ? 'dark' : 'light'); }
-        function toggleSidebar() { document.getElementById('sidebar').classList.toggle('open'); }
+        // Gestion des thèmes
+        function setTheme(theme) { 
+            document.body.setAttribute('data-theme', theme); 
+            localStorage.setItem('theme', theme); 
+            document.querySelector('.theme-toggle').textContent = theme === 'light' ? '🌙' : '☀️'; 
+        }
         
-        function loadConversations() { conversations = JSON.parse(localStorage.getItem('chat-conversations') || '{}'); updateConversationsList(); }
-        function saveConversations() { localStorage.setItem('chat-conversations', JSON.stringify(conversations)); }
+        function toggleTheme() { 
+            const currentTheme = document.body.getAttribute('data-theme');
+            setTheme(currentTheme === 'light' ? 'dark' : 'light'); 
+        }
+        
+        function toggleSidebar() { 
+            document.getElementById('sidebar').classList.toggle('open'); 
+        }
+        
+        // Gestion des conversations
+        function loadConversations() { 
+            try {
+                conversations = JSON.parse(localStorage.getItem('chat-conversations') || '{}'); 
+            } catch (e) {
+                conversations = {};
+            }
+            updateConversationsList(); 
+        }
+        
+        function saveConversations() { 
+            try {
+                localStorage.setItem('chat-conversations', JSON.stringify(conversations)); 
+            } catch (e) {
+                console.error('Erreur sauvegarde conversations:', e);
+            }
+        }
         
         function startNewChat() {
-            // Annuler le streaming en cours si nécessaire
             if (currentStreamingController) {
                 currentStreamingController.abort();
                 currentStreamingController = null;
             }
             
-            currentConversationId = `chat_${Date.now()}`;
-            conversations[currentConversationId] = { id: currentConversationId, title: 'Nouvelle conversation', messages: [], createdAt: new Date().toISOString() };
+            currentConversationId = 'chat_' + Date.now();
+            conversations[currentConversationId] = { 
+                id: currentConversationId, 
+                title: 'Nouvelle conversation', 
+                messages: [], 
+                createdAt: new Date().toISOString() 
+            };
             renderConversation();
             updateConversationsList();
             saveConversations();
@@ -201,7 +237,6 @@
         }
         
         function selectConversation(id) { 
-            // Annuler le streaming en cours si nécessaire
             if (currentStreamingController) {
                 currentStreamingController.abort();
                 currentStreamingController = null;
@@ -215,14 +250,15 @@
             event.stopPropagation();
             if (!confirm('Supprimer cette conversation ?')) return;
             
-            // Annuler le streaming si on supprime la conversation actuelle
             if (currentConversationId === id && currentStreamingController) {
                 currentStreamingController.abort();
                 currentStreamingController = null;
             }
             
             delete conversations[id];
-            if (currentConversationId === id) currentConversationId = null;
+            if (currentConversationId === id) {
+                currentConversationId = null;
+            }
             renderConversation();
             updateConversationsList();
             saveConversations();
@@ -231,24 +267,37 @@
         function updateConversationsList() {
             const container = document.getElementById('conversations');
             container.innerHTML = '';
-            Object.values(conversations)
-                .sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt))
-                .forEach(conv => {
-                    const item = document.createElement('div');
-                    item.className = `menu-item conversation-item ${conv.id === currentConversationId ? 'active' : ''}`;
-                    item.onclick = () => selectConversation(conv.id);
-                    item.innerHTML = `<span>${conv.title}</span><button class="delete-btn" onclick="deleteConversation('${conv.id}', event)">🗑️</button>`;
-                    container.appendChild(item);
-                });
+            
+            const conversationArray = Object.values(conversations);
+            conversationArray.sort(function(a, b) {
+                return new Date(b.createdAt) - new Date(a.createdAt);
+            });
+            
+            conversationArray.forEach(function(conv) {
+                const item = document.createElement('div');
+                item.className = 'menu-item conversation-item';
+                if (conv.id === currentConversationId) {
+                    item.className += ' active';
+                }
+                
+                item.onclick = function() { selectConversation(conv.id); };
+                item.innerHTML = '<span>' + escapeHtml(conv.title) + '</span><button class="delete-btn" onclick="deleteConversation(\'' + conv.id + '\', event)">🗑️</button>';
+                container.appendChild(item);
+            });
         }
 
+        // Rendu des conversations
         function renderConversation() {
             const wrapper = document.getElementById('messagesWrapper');
             const welcomeScreen = document.getElementById('welcomeScreen');
             wrapper.innerHTML = '';
+            
             if (currentConversationId && conversations[currentConversationId]) {
                 welcomeScreen.style.display = 'none';
-                conversations[currentConversationId].messages.forEach(msg => addMessageToUI(msg.content, msg.isUser));
+                const messages = conversations[currentConversationId].messages;
+                messages.forEach(function(msg) {
+                    addMessageToUI(msg.content, msg.isUser);
+                });
             } else {
                 welcomeScreen.style.display = 'flex';
             }
@@ -258,14 +307,18 @@
             const wrapper = document.getElementById('messagesWrapper');
             const group = document.createElement('div');
             group.className = 'message-group';
-            group.innerHTML = `
-                <div class="message ${isUser ? 'user-message' : 'bot-message'}">
-                    <div class="message-avatar ${isUser ? 'user-avatar' : 'bot-avatar'}">
-                        ${isUser ? 'S' : '<svg viewBox="0 0 41 41"><path fill="currentColor" d="M37.532 19.2c-1.176 1.76-2.82 3.295-4.464 4.59-1.644 1.3-3.29 2.36-4.933 3.18-.035.018-.07.036-.106.053-1.644.82-3.29 1.3-4.933 1.467-.036.002-.07.003-.106.003-1.644-.165-3.29-.645-4.934-1.467-.035-.017-.07-.035-.106-.053-1.643-.82-3.29-1.88-4.933-3.18-1.643-1.295-3.288-2.83-4.464-4.59-1.177-1.76-1.765-3.52-1.765-5.28s.588-3.52 1.765-5.28c1.176-1.76 2.82-3.295 4.464-4.59 1.644-1.3 3.29-2.36 4.934-3.18.035-.018.07-.036.106-.053 1.643-.82 3.29-1.3 4.933-1.467.036-.002.07-.003.106-.003s.07.001.106.003c1.644.166 3.29.646 4.934 1.467.035.017.07.035.106.053 1.643.82 3.29 1.88 4.933 3.18 1.643 1.295 3.288 2.83 4.464 4.59 1.177 1.76.588 3.52.588 5.28s-.588 3.52-1.765 5.28zM20.5 35.26c-1.37-.137-2.74-.54-4.11-1.205-1.37-.665-2.74-1.595-4.11-2.79-1.37-1.19-2.495-2.6-3.38-4.07-1.77-2.945-1.77-6.42 0-9.365.885-1.47 2.01-2.88 3.38-4.07 1.37-1.195 2.74-2.125 4.11-2.79 1.37-.665 2.74-1.07 4.11-1.205 2.945-.27 5.89.815 7.99 2.915 2.1 2.1 3.185 5.045 2.915 7.99-.135 1.37-.54 2.74-1.205 4.11-.665 1.37-1.595 2.74-2.79 4.11-1.19 1.37-2.6 2.495-4.07 3.38-1.47.885-2.88 1.53-4.245 1.935a8.216 8.216 0 0 1-1.765.175z"></path></svg>'}
-                    </div>
-                    <div class="message-content">${isUser ? `<p>${content}</p>` : content}</div>
-                </div>
-            `;
+            
+            const avatarContent = isUser ? 'S' : '<svg viewBox="0 0 41 41"><path fill="currentColor" d="M37.532 19.2c-1.176 1.76-2.82 3.295-4.464 4.59-1.644 1.3-3.29 2.36-4.933 3.18-.035.018-.07.036-.106.053-1.644.82-3.29 1.3-4.933 1.467-.036.002-.07.003-.106.003-1.644-.165-3.29-.645-4.934-1.467-.035-.017-.07-.035-.106-.053-1.643-.82-3.29-1.88-4.933-3.18-1.643-1.295-3.288-2.83-4.464-4.59-1.177-1.76-1.765-3.52-1.765-5.28s.588-3.52 1.765-5.28c1.176-1.76 2.82-3.295 4.464-4.59 1.644-1.3 3.29-2.36 4.934-3.18.035-.018.07-.036.106-.053 1.643-.82 3.29-1.3 4.933-1.467.036-.002.07-.003.106-.003s.07.001.106.003c1.644.166 3.29.646 4.934 1.467.035.017.07.035.106.053 1.643.82 3.29 1.88 4.933 3.18 1.643 1.295 3.288 2.83 4.464 4.59 1.177 1.76.588 3.52.588 5.28s-.588 3.52-1.765 5.28zM20.5 35.26c-1.37-.137-2.74-.54-4.11-1.205-1.37-.665-2.74-1.595-4.11-2.79-1.37-1.19-2.495-2.6-3.38-4.07-1.77-2.945-1.77-6.42 0-9.365.885-1.47 2.01-2.88 3.38-4.07 1.37-1.195 2.74-2.125 4.11-2.79 1.37-.665 2.74-1.07 4.11-1.205 2.945-.27 5.89.815 7.99 2.915 2.1 2.1 3.185 5.045 2.915 7.99-.135 1.37-.54 2.74-1.205 4.11-.665 1.37-1.595 2.74-2.79 4.11-1.19 1.37-2.6 2.495-4.07 3.38-1.47.885-2.88 1.53-4.245 1.935a8.216 8.216 0 0 1-1.765.175z"></path></svg>';
+            
+            const messageContent = isUser ? '<p>' + escapeHtml(content) + '</p>' : content;
+            
+            group.innerHTML = '<div class="message ' + (isUser ? 'user-message' : 'bot-message') + '">' +
+                '<div class="message-avatar ' + (isUser ? 'user-avatar' : 'bot-avatar') + '">' +
+                avatarContent +
+                '</div>' +
+                '<div class="message-content">' + messageContent + '</div>' +
+                '</div>';
+                
             wrapper.appendChild(group);
             scrollToBottom();
             return group.querySelector('.message-content');
@@ -273,18 +326,22 @@
         
         function saveMessage(content, isUser) {
             if (!currentConversationId) return;
+            
             const conv = conversations[currentConversationId];
-            conv.messages.push({ content, isUser });
+            conv.messages.push({ content: content, isUser: isUser });
+            
             if (conv.messages.length === 1 && isUser) {
-                conv.title = content.substring(0, 30) + '...';
+                conv.title = content.substring(0, 30) + (content.length > 30 ? '...' : '');
                 updateConversationsList();
             }
             saveConversations();
         }
 
-        // Fonction pour l'effet typewriter
-        function typewriterEffect(element, text, speed = 30) {
-            return new Promise((resolve) => {
+        // Effet typewriter
+        function typewriterEffect(element, text, speed) {
+            if (!speed) speed = 30;
+            
+            return new Promise(function(resolve) {
                 element.innerHTML = '';
                 element.classList.add('streaming-message');
                 
@@ -293,29 +350,36 @@
                 element.appendChild(cursor);
                 
                 let i = 0;
-                const timer = setInterval(() => {
+                const timer = setInterval(function() {
                     if (i < text.length) {
-                        element.insertBefore(document.createTextNode(text.charAt(i)), cursor);
+                        const textNode = document.createTextNode(text.charAt(i));
+                        element.insertBefore(textNode, cursor);
                         i++;
                         scrollToBottom();
                     } else {
                         clearInterval(timer);
                         cursor.remove();
                         element.classList.remove('streaming-message');
-                        // Appliquer le markdown après la fin du typewriter
-                        element.innerHTML = marked.parse(text);
+                        try {
+                            element.innerHTML = marked.parse(text);
+                        } catch (e) {
+                            element.innerHTML = escapeHtml(text);
+                        }
                         resolve();
                     }
                 }, speed);
             });
         }
 
+        // Envoi de message
         async function sendMessage() {
             const input = document.getElementById('messageInput');
             const message = input.value.trim();
             if (!message || isLoading) return;
 
-            if (!currentConversationId) startNewChat();
+            if (!currentConversationId) {
+                startNewChat();
+            }
             
             saveMessage(message, true);
             addMessageToUI(message, true);
@@ -323,18 +387,177 @@
             autoResize(); 
             setLoading(true);
 
-            // Créer un contrôleur pour pouvoir annuler la requête
             currentStreamingController = new AbortController();
-
             const botMessageElement = addMessageToUI('<span class="loading"></span>', false);
             let fullResponse = '';
 
             try {
-                // Essayer d'abord le streaming
-                const response = await fetch(config.streamingUrl, {
+                // Essayer d'abord avec streaming
+                const response = await fetch(config.apiUrl, {
                     method: 'POST',
                     headers: { 
-                        'Content-Type': 'application/json',
-                        'Accept': 'text/event-stream',
-                        'Cache-Control': 'no-cache'
-                        '
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({ "question": message }),
+                    signal: currentStreamingController.signal
+                });
+
+                if (!response.ok) {
+                    throw new Error('Erreur serveur: ' + response.status);
+                }
+
+                const contentType = response.headers.get('content-type');
+                
+                if (contentType && contentType.includes('text/event-stream')) {
+                    // Streaming détecté
+                    console.log('Streaming détecté');
+                    botMessageElement.innerHTML = '';
+                    
+                    const reader = response.body.getReader();
+                    const decoder = new TextDecoder();
+                    let buffer = '';
+                    
+                    while (true) {
+                        const result = await reader.read();
+                        if (result.done) break;
+                        
+                        buffer += decoder.decode(result.value, { stream: true });
+                        const lines = buffer.split('\n');
+                        buffer = lines.pop() || '';
+                        
+                        for (let i = 0; i < lines.length; i++) {
+                            const line = lines[i];
+                            if (line.trim() === '') continue;
+                            
+                            if (line.startsWith('data: ')) {
+                                const data = line.slice(6);
+                                
+                                if (data === '[DONE]') {
+                                    break;
+                                }
+                                
+                                try {
+                                    const parsed = JSON.parse(data);
+                                    let token = '';
+                                    
+                                    if (parsed.token) {
+                                        token = parsed.token;
+                                    } else if (parsed.data && parsed.data.token) {
+                                        token = parsed.data.token;
+                                    } else if (parsed.chunk) {
+                                        token = parsed.chunk;
+                                    } else if (typeof parsed === 'string') {
+                                        token = parsed;
+                                    }
+                                    
+                                    if (token) {
+                                        fullResponse += token;
+                                        botMessageElement.innerHTML = escapeHtml(fullResponse) + '<span class="typing-cursor"></span>';
+                                        scrollToBottom();
+                                    }
+                                } catch (e) {
+                                    console.warn('Erreur parsing SSE:', e);
+                                }
+                            }
+                        }
+                    }
+                    
+                    const cursor = botMessageElement.querySelector('.typing-cursor');
+                    if (cursor) cursor.remove();
+                    
+                    try {
+                        botMessageElement.innerHTML = marked.parse(fullResponse);
+                    } catch (e) {
+                        botMessageElement.innerHTML = escapeHtml(fullResponse);
+                    }
+                    
+                } else {
+                    // Pas de streaming - réponse normale avec effet typewriter
+                    console.log('Pas de streaming - utilisation normale');
+                    
+                    const result = await response.json();
+                    fullResponse = result.text || result.data?.text || result.message || JSON.stringify(result);
+                    
+                    await typewriterEffect(botMessageElement, fullResponse, 50);
+                }
+
+            } catch (error) {
+                if (error.name === 'AbortError') {
+                    console.log('Requête annulée');
+                    return;
+                }
+                
+                console.error('Erreur:', error);
+                fullResponse = '❌ Erreur: ' + error.message;
+                botMessageElement.innerHTML = escapeHtml(fullResponse);
+                
+            } finally {
+                if (fullResponse && !fullResponse.startsWith('❌')) {
+                    saveMessage(fullResponse, false);
+                }
+                setLoading(false);
+                currentStreamingController = null;
+            }
+        }
+
+        function setLoading(loading) {
+            isLoading = loading;
+            const sendButton = document.getElementById('sendButton');
+            const messageInput = document.getElementById('messageInput');
+            
+            messageInput.disabled = loading;
+            sendButton.disabled = loading || messageInput.value.trim() === '';
+            
+            if (loading) {
+                sendButton.innerHTML = '<div class="loading"></div>';
+            } else {
+                sendButton.innerHTML = '<svg viewBox="0 0 24 24"><path d="M2.01 21L23 12 2.01 3 2 10l15 2-15 2z"/></svg>';
+                messageInput.focus();
+            }
+        }
+
+        // Fonctions utilitaires
+        function autoResize() { 
+            const textarea = document.getElementById('messageInput'); 
+            textarea.style.height = 'auto'; 
+            textarea.style.height = Math.min(textarea.scrollHeight, 200) + 'px'; 
+        }
+        
+        function scrollToBottom() { 
+            const container = document.getElementById('chatContainer'); 
+            container.scrollTop = container.scrollHeight; 
+        }
+        
+        function handleKeyDown(event) { 
+            if (event.key === 'Enter' && !event.shiftKey) { 
+                event.preventDefault(); 
+                sendMessage(); 
+            } else if (event.key === 'Escape' && currentStreamingController) {
+                currentStreamingController.abort();
+                currentStreamingController = null;
+                setLoading(false);
+            }
+        }
+
+        function escapeHtml(text) {
+            const div = document.createElement('div');
+            div.textContent = text;
+            return div.innerHTML;
+        }
+
+        // Gestion des événements réseau
+        window.addEventListener('online', function() {
+            console.log('Connexion rétablie');
+        });
+
+        window.addEventListener('offline', function() {
+            console.log('Connexion perdue');
+            if (currentStreamingController) {
+                currentStreamingController.abort();
+                currentStreamingController = null;
+                setLoading(false);
+            }
+        });
+    </script>
+</body>
+</html>
