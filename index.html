@@ -80,6 +80,27 @@
         .send-button svg { width: 16px; height: 16px; fill: var(--button-text); }
         [data-theme="dark"] .send-button:disabled { background: var(--gray-600); }
         .loading{display:inline-block;width:20px;height:20px;border:2px solid var(--border-color);border-radius:50%;border-top-color:var(--button-bg);animation:spin 1s ease-in-out infinite}@keyframes spin{to{transform:rotate(360deg)}}
+        
+        /* Nouveau CSS pour l'effet typewriter */
+        .typing-cursor {
+            display: inline-block;
+            width: 2px;
+            height: 1.2em;
+            background-color: var(--text-primary);
+            animation: blink 1s infinite;
+            margin-left: 2px;
+            vertical-align: middle;
+        }
+        
+        @keyframes blink {
+            0%, 50% { opacity: 1; }
+            51%, 100% { opacity: 0; }
+        }
+        
+        .streaming-message {
+            position: relative;
+        }
+        
         @media (max-width: 768px) { .sidebar { position: fixed; left: -260px; top: 0; height: 100%; z-index: 100; transition: left 0.3s ease; } .sidebar.open { left: 0; box-shadow: 0 0 40px rgba(0,0,0,0.2); } .main-content { width: 100%; } .hamburger { display: block; } .messages-wrapper, .input-area { padding: 16px; } }
     </style>
 </head>
@@ -137,9 +158,13 @@
         let currentConversationId = null;
         let conversations = {};
         let isLoading = false;
+        let currentStreamingController = null;
+        
         const config = {
-            // J'AI MIS VOTRE ID DE CHATFLOW QUI FONCTIONNE ICI
-            apiUrl: 'https://srv886023.hstgr.cloud/api/v1/prediction/b02cce0c-77a8-4b4f-8a4a-0de7afd15fc2'
+            // Remplacez par votre URL FlowiseAI
+            apiUrl: 'https://srv886023.hstgr.cloud/api/v1/prediction/b02cce0c-77a8-4b4f-8a4a-0de7afd15fc2',
+            // Pour le streaming, ajoutez le paramètre stream
+            streamingUrl: 'https://srv886023.hstgr.cloud/api/v1/prediction/b02cce0c-77a8-4b4f-8a4a-0de7afd15fc2?streaming=true'
         };
 
         document.addEventListener('DOMContentLoaded', () => {
@@ -161,6 +186,12 @@
         function saveConversations() { localStorage.setItem('chat-conversations', JSON.stringify(conversations)); }
         
         function startNewChat() {
+            // Annuler le streaming en cours si nécessaire
+            if (currentStreamingController) {
+                currentStreamingController.abort();
+                currentStreamingController = null;
+            }
+            
             currentConversationId = `chat_${Date.now()}`;
             conversations[currentConversationId] = { id: currentConversationId, title: 'Nouvelle conversation', messages: [], createdAt: new Date().toISOString() };
             renderConversation();
@@ -168,16 +199,35 @@
             saveConversations();
             document.getElementById('messageInput').focus();
         }
-        function selectConversation(id) { currentConversationId = id; renderConversation(); updateConversationsList(); }
+        
+        function selectConversation(id) { 
+            // Annuler le streaming en cours si nécessaire
+            if (currentStreamingController) {
+                currentStreamingController.abort();
+                currentStreamingController = null;
+            }
+            currentConversationId = id; 
+            renderConversation(); 
+            updateConversationsList(); 
+        }
+        
         function deleteConversation(id, event) {
             event.stopPropagation();
             if (!confirm('Supprimer cette conversation ?')) return;
+            
+            // Annuler le streaming si on supprime la conversation actuelle
+            if (currentConversationId === id && currentStreamingController) {
+                currentStreamingController.abort();
+                currentStreamingController = null;
+            }
+            
             delete conversations[id];
             if (currentConversationId === id) currentConversationId = null;
             renderConversation();
             updateConversationsList();
             saveConversations();
         }
+        
         function updateConversationsList() {
             const container = document.getElementById('conversations');
             container.innerHTML = '';
@@ -232,6 +282,34 @@
             saveConversations();
         }
 
+        // Fonction pour l'effet typewriter
+        function typewriterEffect(element, text, speed = 30) {
+            return new Promise((resolve) => {
+                element.innerHTML = '';
+                element.classList.add('streaming-message');
+                
+                const cursor = document.createElement('span');
+                cursor.className = 'typing-cursor';
+                element.appendChild(cursor);
+                
+                let i = 0;
+                const timer = setInterval(() => {
+                    if (i < text.length) {
+                        element.insertBefore(document.createTextNode(text.charAt(i)), cursor);
+                        i++;
+                        scrollToBottom();
+                    } else {
+                        clearInterval(timer);
+                        cursor.remove();
+                        element.classList.remove('streaming-message');
+                        // Appliquer le markdown après la fin du typewriter
+                        element.innerHTML = marked.parse(text);
+                        resolve();
+                    }
+                }, speed);
+            });
+        }
+
         async function sendMessage() {
             const input = document.getElementById('messageInput');
             const message = input.value.trim();
@@ -241,68 +319,22 @@
             
             saveMessage(message, true);
             addMessageToUI(message, true);
-            input.value = ''; autoResize(); setLoading(true);
+            input.value = ''; 
+            autoResize(); 
+            setLoading(true);
+
+            // Créer un contrôleur pour pouvoir annuler la requête
+            currentStreamingController = new AbortController();
 
             const botMessageElement = addMessageToUI('<span class="loading"></span>', false);
             let fullResponse = '';
 
             try {
-                const response = await fetch(config.apiUrl, {
+                // Essayer d'abord le streaming
+                const response = await fetch(config.streamingUrl, {
                     method: 'POST',
-                    headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({ "question": message })
-                });
-                if (!response.ok) throw new Error(`Erreur serveur: ${response.status}`);
-                
-                // --- Code pour le streaming (si votre chatflow le supporte) ---
-                // Si votre chatflow supporte le streaming, décommentez ce bloc.
-                /*
-                const reader = response.body.getReader();
-                const decoder = new TextDecoder();
-                while (true) {
-                    const { done, value } = await reader.read();
-                    if (done) break;
-                    const chunk = decoder.decode(value);
-                    // Le format de Flowise peut varier. Ceci est un exemple.
-                    // Essayez de logguer `chunk` pour voir le format exact.
-                    try {
-                        const data = JSON.parse(chunk.replace('data: ', ''));
-                        if (data.token) {
-                            fullResponse += data.token;
-                            botMessageElement.innerHTML = marked.parse(fullResponse + ' ▌');
-                            scrollToBottom();
-                        }
-                    } catch(e) {
-                        // Gérer les chunks incomplets si nécessaire
-                    }
-                }
-                */
-               
-                // --- Code pour une réponse normale (non-streamée) ---
-                const result = await response.json();
-                fullResponse = result.text || JSON.stringify(result);
-
-            } catch (error) {
-                fullResponse = `❌ Erreur: ${error.message}`;
-            } finally {
-                botMessageElement.innerHTML = marked.parse(fullResponse);
-                saveMessage(fullResponse, false);
-                setLoading(false);
-            }
-        }
-
-        function setLoading(loading) {
-            isLoading = loading;
-            const sendButton = document.getElementById('sendButton');
-            document.getElementById('messageInput').disabled = loading;
-            sendButton.disabled = loading;
-            sendButton.innerHTML = loading ? '<div class="loading"></div>' : '<svg viewBox="0 0 24 24"><path d="M2.01 21L23 12 2.01 3 2 10l15 2-15 2z"/></svg>';
-            if (!loading) document.getElementById('messageInput').focus();
-        }
-
-        const autoResize = () => { const textarea = document.getElementById('messageInput'); textarea.style.height = 'auto'; textarea.style.height = `${Math.min(textarea.scrollHeight, 200)}px`; };
-        const scrollToBottom = () => { const container = document.getElementById('chatContainer'); container.scrollTop = container.scrollHeight; };
-        const handleKeyDown = (event) => { if (event.key === 'Enter' && !event.shiftKey) { event.preventDefault(); sendMessage(); } };
-    </script>
-</body>
-</html>
+                    headers: { 
+                        'Content-Type': 'application/json',
+                        'Accept': 'text/event-stream',
+                        'Cache-Control': 'no-cache'
+                        '
