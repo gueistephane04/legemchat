@@ -1,0 +1,63 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <title>Test de Connexion Flowise</title>
+    <style>
+        body { font-family: sans-serif; background: #222; color: #eee; padding: 20px; }
+        #question { width: 300px; padding: 8px; }
+        #response { margin-top: 20px; background: #333; padding: 10px; border-radius: 5px; white-space: pre-wrap; }
+    </style>
+</head>
+<body>
+    <h1>Test de Connexion Directe à Flowise</h1>
+    <input type="text" id="question" placeholder="Posez une question...">
+    <button onclick="sendMessage()">Envoyer</button>
+    <h2>Réponse du serveur :</h2>
+    <div id="response">En attente...</div>
+
+    <script>
+        // L'URL de votre API Flowise
+        const API_URL = "https://srv886023.hstgr.cloud/api/v1/prediction/4e49a3a4-7957-4627-933a25918729";
+
+        async function sendMessage() {
+            const questionInput = document.getElementById('question');
+            const responseDiv = document.getElementById('response');
+            
+            const question = questionInput.value.trim();
+            if (!question) {
+                alert("Veuillez entrer une question.");
+                return;
+            }
+
+            responseDiv.textContent = "Envoi de la requête...";
+
+            try {
+                // La même requête simple que celle que vous utilisiez
+                const response = await fetch(API_URL, {
+                    method: "POST",
+                    headers: {
+                        "Content-Type": "application/json"
+                    },
+                    body: JSON.stringify({ "question": question })
+                });
+
+                // Si la réponse n'est pas OK (ex: 404, 500), on génère une erreur
+                if (!response.ok) {
+                    throw new Error(`Erreur HTTP: ${response.status} ${response.statusText}`);
+                }
+
+                const result = await response.json();
+
+                // Afficher la réponse brute pour voir ce que Flowise renvoie exactement
+                responseDiv.textContent = JSON.stringify(result, null, 2);
+
+            } catch (error) {
+                console.error("L'erreur détaillée est:", error);
+                // L'erreur "Failed to fetch" apparaîtra ici si le CORS n'est pas résolu
+                responseDiv.textContent = "Erreur: " + error.message;
+            }
+        }
+    </script>
+</body>
+</html>
